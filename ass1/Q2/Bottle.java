@@ -1,35 +1,31 @@
 public class Bottle {
     enum State {
         UNFINISHED,
-        INPACKAGING,
-        SEALEDINPACKAGING,
         PACKAGED,
-        INSEALING,
-        PACKAGEDINSEALING,
         SEALED,
         INGODOWN
     }
 
     enum Type {
-        B1,
+        B1, 
         B2
     }
 
     Type type;
     State state;
 
-    public Bottle(boolean isB1, boolean toPack) {
+    public Bottle(boolean isB1) {
+        this.state = State.UNFINISHED;
         if (isB1) {
-            this.type = B1;
+            this.type = Type.B1;
         }
         else {
-            this.type = B2;
+            this.type = Type.B2;
         }
-        if (toPack) {
-            this.state = INPACKAGING;
-        }
-        else {
-            this.state = INSEALING;
-        }
-    } 
+    }
+
+    public void changeState(State newState) {
+        this.state = newState;
+    }
+
 }
