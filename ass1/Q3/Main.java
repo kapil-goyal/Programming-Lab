@@ -1,4 +1,5 @@
 import java.util.*;
+import javax.swing.JFrame;
 
 class VehicleQueue {
     Queue<Vehicle> laneQueue;
@@ -11,7 +12,7 @@ class VehicleQueue {
         this.nextAssignTime = nextAssignTime;
     }
 
-    public void addNewVehicle(Vehicle newVehicle, TrafficLights trafficLights) {
+    public synchronized void addNewVehicle(Vehicle newVehicle, TrafficLights trafficLights) {
         laneQueue.add(newVehicle);
         trafficLights.processVehicleQueues();
     }
@@ -29,7 +30,7 @@ class VehicleQueue {
             if (newVehicle == null)
                 break;
             while (true) {
-                long currentSlot = ((nextAssignTime / 60) % 3 + type) % 3;
+                long currentSlot = ((nextAssignTime / 60) % 3 + 3 - type) % 3;
                 if (currentSlot == 0) {
                     long remainingTime = 60 * (nextAssignTime / 60 + 1) - nextAssignTime;
                     if (remainingTime >= 6) {
@@ -70,7 +71,7 @@ class TrafficLights extends TimerTask {
     Queue<Vehicle> processedQueue;
     Traffic traffic;
 
-    public TrafficLights(int activeTrafficLight, VehicleQueue t1Queue, VehicleQueue t2Queue, VehicleQueue t3Queue) {
+    public TrafficLights(int activeTrafficLight, VehicleQueue t1Queue, VehicleQueue t2Queue, VehicleQueue t3Queue, JFrame frame) {
         this.activeTrafficLight = activeTrafficLight;
         this.elapsedTime = 0;
         this.t1Queue = t1Queue;
@@ -80,7 +81,8 @@ class TrafficLights extends TimerTask {
         this.remainingTime[((activeTrafficLight-1) + 1) % 3] = 60;
         this.remainingTime[((activeTrafficLight-1) + 2) % 3] = 120;   
         processedQueue = new LinkedList<Vehicle>();      
-        traffic = new Traffic((activeTrafficLight-1 == 0), 
+        traffic = new Traffic(frame, 
+                            (activeTrafficLight-1 == 0), 
                             (activeTrafficLight-1 == 1), 
                             (activeTrafficLight-1 == 2), 
                             this.remainingTime[0], 
@@ -90,8 +92,8 @@ class TrafficLights extends TimerTask {
 
     public void processVehicleQueues() {
         t1Queue.processVehicleQueue(this.elapsedTime, processedQueue, this);
-        t1Queue.processVehicleQueue(this.elapsedTime, processedQueue, this);
-        t1Queue.processVehicleQueue(this.elapsedTime, processedQueue, this);
+        t2Queue.processVehicleQueue(this.elapsedTime, processedQueue, this);
+        t3Queue.processVehicleQueue(this.elapsedTime, processedQueue, this);
     }
 
     public void updateTrafficLight() {
@@ -159,7 +161,7 @@ class Mythread extends Thread {
         timer = new Timer();
     }
     public void run() {
-        timer.schedule(this.trafficLights, 0, 100);
+        timer.schedule(this.trafficLights, 0, 500);
     }
 }
 
@@ -172,7 +174,12 @@ class Main {
         VehicleQueue t1Queue = new VehicleQueue(0,0);
         VehicleQueue t2Queue = new VehicleQueue(1,60);
         VehicleQueue t3Queue = new VehicleQueue(2,120);
-        TrafficLights trafficLights = new TrafficLights(3, t1Queue, t2Queue, t3Queue);
+        
+        JFrame frame = new JFrame();
+        TrafficLights trafficLights = new TrafficLights(1, t1Queue, t2Queue, t3Queue, frame);
+        NewVehicle vehicleUI = new NewVehicle(frame, t1Queue, t2Queue, t3Queue, trafficLights);
+        
+        
 
         // int x = 4;
 
@@ -180,8 +187,8 @@ class Main {
         //     String source = input.next();
         //     String destination = input.next();
 
-            // System.out.println(source);
-            // System.out.println(destination);
+        //     System.out.println(source);
+        //     System.out.println(destination);
 
         //     if (source.equals("N") || destination.equals("N")) {
         //         System.out.println("Error: Invalid input");
@@ -202,15 +209,21 @@ class Main {
         //         System.out.println("Invalid Input");
         //     }
         // }
-        // // System.out.println(t1Queue);
-        // // System.out.println(t2Queue);
-        // // System.out.println(t3Queue);
+        // while (true) {
+        //     ;
+        // }
+        // System.out.println(t1Queue);
+        // System.out.println(t2Queue);
+        // System.out.println(t3Queue);
         // t1Queue.print();
         // t2Queue.print();
         // t3Queue.print();
+        // for (Vehicle eachVehicle : trafficLights.processedQueue) {
+        //     eachVehicle.printVehicleStatus();
+        // }
         
-        Mythread tempthread = new Mythread(trafficLights);
-        tempthread.start();
+        // Mythread tempthread = new Mythread(trafficLights);
+        // tempthread.start();
         // tempthread.join();
     }
 }
