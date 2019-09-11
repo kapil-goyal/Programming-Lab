@@ -80,7 +80,12 @@ class TrafficLights extends TimerTask {
         this.remainingTime[((activeTrafficLight-1) + 1) % 3] = 60;
         this.remainingTime[((activeTrafficLight-1) + 2) % 3] = 120;   
         processedQueue = new LinkedList<Vehicle>();      
-        traffic = new Traffic();
+        traffic = new Traffic((activeTrafficLight-1 == 0), 
+                            (activeTrafficLight-1 == 1), 
+                            (activeTrafficLight-1 == 2), 
+                            this.remainingTime[0], 
+                            this.remainingTime[1], 
+                            this.remainingTime[2]);
     }
 
     public void processVehicleQueues() {
@@ -128,8 +133,11 @@ class TrafficLights extends TimerTask {
     public void run() {
         // System.out.println(this.elapsedTime);
         System.out.println("\f");
+        // this.elapsedTime++;
+        displayTrafficLight();
+        displayVehiclesStatus();
         this.elapsedTime++;
-        if (this.elapsedTime % 60 == 0) {
+        if (this.elapsedTime % 60 == 0 && this.elapsedTime > 0) {
             this.updateTrafficLight();
         }
         else {
@@ -137,9 +145,7 @@ class TrafficLights extends TimerTask {
             remainingTime[1]--;
             remainingTime[2]--;
         }      
-        displayTrafficLight();  
         updateVehiclesStatus();
-        displayVehiclesStatus();
     }
 }
 
@@ -153,7 +159,7 @@ class Mythread extends Thread {
         timer = new Timer();
     }
     public void run() {
-        timer.schedule(this.trafficLights, 0, 2000);
+        timer.schedule(this.trafficLights, 0, 100);
     }
 }
 
@@ -168,40 +174,40 @@ class Main {
         VehicleQueue t3Queue = new VehicleQueue(2,120);
         TrafficLights trafficLights = new TrafficLights(3, t1Queue, t2Queue, t3Queue);
 
-        int x = 4;
+        // int x = 4;
 
-        while (x-- > 0) {
-            String source = input.next();
-            String destination = input.next();
+        // while (x-- > 0) {
+        //     String source = input.next();
+        //     String destination = input.next();
 
             // System.out.println(source);
             // System.out.println(destination);
 
-            if (source.equals("N") || destination.equals("N")) {
-                System.out.println("Error: Invalid input");
-            }
-            else if (source.equals("S") && destination.equals("E")) {
-                Vehicle newVehicle = new Vehicle(vehicleID++, (System.currentTimeMillis() / 1000), Vehicle.Direction.SouthEast);
-                t1Queue.addNewVehicle(newVehicle, trafficLights);
-            }
-            else if (source.equals("W") && destination.equals("S")) {
-                Vehicle newVehicle = new Vehicle(vehicleID++, (System.currentTimeMillis() / 1000), Vehicle.Direction.WestSouth);
-                t2Queue.addNewVehicle(newVehicle, trafficLights);
-            }
-            else if (source.equals("E") && destination.equals("W")) {
-                Vehicle newVehicle = new Vehicle(vehicleID++, (System.currentTimeMillis() / 1000), Vehicle.Direction.EastWest);
-                t3Queue.addNewVehicle(newVehicle, trafficLights);
-            }
-            else {
-                System.out.println("Invalid Input");
-            }
-        }
-        // System.out.println(t1Queue);
-        // System.out.println(t2Queue);
-        // System.out.println(t3Queue);
-        t1Queue.print();
-        t2Queue.print();
-        t3Queue.print();
+        //     if (source.equals("N") || destination.equals("N")) {
+        //         System.out.println("Error: Invalid input");
+        //     }
+        //     else if (source.equals("S") && destination.equals("E")) {
+        //         Vehicle newVehicle = new Vehicle(vehicleID++, (System.currentTimeMillis() / 1000), Vehicle.Direction.SouthEast);
+        //         t1Queue.addNewVehicle(newVehicle, trafficLights);
+        //     }
+        //     else if (source.equals("W") && destination.equals("S")) {
+        //         Vehicle newVehicle = new Vehicle(vehicleID++, (System.currentTimeMillis() / 1000), Vehicle.Direction.WestSouth);
+        //         t2Queue.addNewVehicle(newVehicle, trafficLights);
+        //     }
+        //     else if (source.equals("E") && destination.equals("W")) {
+        //         Vehicle newVehicle = new Vehicle(vehicleID++, (System.currentTimeMillis() / 1000), Vehicle.Direction.EastWest);
+        //         t3Queue.addNewVehicle(newVehicle, trafficLights);
+        //     }
+        //     else {
+        //         System.out.println("Invalid Input");
+        //     }
+        // }
+        // // System.out.println(t1Queue);
+        // // System.out.println(t2Queue);
+        // // System.out.println(t3Queue);
+        // t1Queue.print();
+        // t2Queue.print();
+        // t3Queue.print();
         
         Mythread tempthread = new Mythread(trafficLights);
         tempthread.start();

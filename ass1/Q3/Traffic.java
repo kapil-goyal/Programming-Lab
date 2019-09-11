@@ -8,10 +8,11 @@ class Traffic{
     JFrame frame;
     static final long serialVersionUID = 5;
 
-    public Traffic(){
+    public Traffic(boolean b1, boolean b2, boolean b3, long t1, long t2, long t3){
         JFrame frame = new JFrame();
         String[] cols = {"Traffic Light", "Status", "Time"};
         String[][] rowData = {{"T1","Green","60"},{"T2","Red","60"},{"T3","Red","120"}};
+        
         
         lightsTableModel = new DefaultTableModel();
         lightsTableModel.setColumnIdentifiers(cols);
@@ -37,6 +38,20 @@ class Traffic{
         frame.add(pane);
         frame.setSize( 500, 500 );
         // frame.show();
+        this.lightsTableModel.setValueAt("Red", 0, 1);
+        this.lightsTableModel.setValueAt("Red", 1, 1);
+        this.lightsTableModel.setValueAt("Red", 2, 1);
+        if(b1)
+            this.lightsTableModel.setValueAt("Green", 0, 1);
+        else if(b2)
+            this.lightsTableModel.setValueAt("Green", 1, 1);
+        else
+            this.lightsTableModel.setValueAt("Green", 2, 1);
+        
+        this.lightsTableModel.setValueAt(String.valueOf(t1), 0, 2);
+        this.lightsTableModel.setValueAt(String.valueOf(t2), 1, 2);
+        this.lightsTableModel.setValueAt(String.valueOf(t3), 2, 2);
+        
         frame.setVisible(true);
     }
 
