@@ -13,9 +13,11 @@ class NewVehicle{
     TrafficLights trafficLights;
     int vehicleID;
 
-
-
-    public NewVehicle(JFrame frame, VehicleQueue t1Queue, VehicleQueue t2Queue, VehicleQueue t3Queue, TrafficLights trafficLights){
+    public NewVehicle(JFrame frame, 
+                      VehicleQueue t1Queue, 
+                      VehicleQueue t2Queue, 
+                      VehicleQueue t3Queue, 
+                      TrafficLights trafficLights) {
         this.t1Queue = t1Queue;
         this.t2Queue = t2Queue;
         this.t3Queue = t3Queue;
