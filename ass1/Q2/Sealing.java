@@ -89,7 +89,7 @@ class Sealing {
         else {
             this.getNewBottle();
             if (this.currentBottle == null) {
-                return currentTime+1;
+                return packNextWakeupTime > currentTime ? packNextWakeupTime : currentTime;
             }
             else {
                 this.state = State.SEALING;

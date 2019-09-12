@@ -272,7 +272,7 @@ class Main {
         MyPackagingThread packagingThread;
         MySealingThread sealingThread;
 
-        while (currentTime <= observationTime) {
+        while (currentTime <= observationTime && (godownB1.getSize() < numberOfB1 || godownB2.getSize() < numberOfB2)) {
             packagingThread = new MyPackagingThread(currentTime, nextWakeupTimePack, nextWakeupTimeSeal, packagingUnit);
             sealingThread = new MySealingThread(currentTime, nextWakeupTimePack, nextWakeupTimeSeal, sealingUnit); 
 
