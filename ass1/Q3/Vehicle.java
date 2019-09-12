@@ -1,4 +1,4 @@
-class Vehicle {
+    class Vehicle {
     enum Direction {
         EastWest,
         WestEast,

@@ -6,6 +6,9 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
+
+// import Vehicle.Direction;
+
 import javax.swing.JTable;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -81,14 +84,16 @@ class TrafficLights extends TimerTask {
     VehicleQueue t3Queue;
     Queue<Vehicle> processedQueue;
     JTable trafficTable;
+    JTable vehicleTable;
 
-    public TrafficLights(int activeTrafficLight, VehicleQueue t1Queue, VehicleQueue t2Queue, VehicleQueue t3Queue, JTable trafficTable) {
+    public TrafficLights(int activeTrafficLight, VehicleQueue t1Queue, VehicleQueue t2Queue, VehicleQueue t3Queue, JTable trafficTable, JTable vehicleTable) {
         this.activeTrafficLight = activeTrafficLight;
         this.elapsedTime = 0;
         this.t1Queue = t1Queue;
         this.t2Queue = t2Queue;
         this.t3Queue = t3Queue;
         this.trafficTable = trafficTable;
+        this.vehicleTable = vehicleTable;
         this.remainingTime[(activeTrafficLight-1) % 3] = 60;
         this.remainingTime[((activeTrafficLight-1) + 1) % 3] = 60;
         this.remainingTime[((activeTrafficLight-1) + 2) % 3] = 120;   
@@ -99,6 +104,7 @@ class TrafficLights extends TimerTask {
                             this.remainingTime[0], 
                             this.remainingTime[1], 
                             this.remainingTime[2]);
+        this.updateVehicles(this.processedQueue);
     }
 
     public void processVehicleQueues() {
@@ -121,6 +127,65 @@ class TrafficLights extends TimerTask {
                 eachVehicle.status = true;
             }
         }
+    }
+
+    public void updateVehicles(Queue<Vehicle> vehicles){
+        int i=0;
+        Vehicle lastVehicle = new Vehicle(0,0,Vehicle.Direction.EastSouth);
+        for(Vehicle item: vehicles){
+            if(i >= vehicleTable.getRowCount()){
+                lastVehicle.id = item.id;
+                lastVehicle.timeStamp = item.timeStamp;
+                lastVehicle.direction = item.direction;
+                lastVehicle.status = item.status;
+                lastVehicle.remainingTime = item.remainingTime;
+                break;
+            }
+            if(item.status)
+                vehicleTable.setValueAt("Pass", i, 3);
+            else
+                vehicleTable.setValueAt("Wait", i, 3);
+            vehicleTable.setValueAt(String.valueOf(item.remainingTime), i, 4);
+            i++;    
+        }
+        if(vehicles.size() > vehicleTable.getRowCount()){
+            DefaultTableModel model = (DefaultTableModel) vehicleTable.getModel();
+            Vector<String> newVehicle = new Vector<String>();
+            newVehicle.add(String.valueOf(lastVehicle.id));
+            if(lastVehicle.direction == Vehicle.Direction.EastSouth){
+                newVehicle.add("East");
+                newVehicle.add("South");
+            }
+            else if(lastVehicle.direction == Vehicle.Direction.EastWest){
+                newVehicle.add("East");
+                newVehicle.add("West");
+            }
+            else if(lastVehicle.direction == Vehicle.Direction.SouthEast){
+                newVehicle.add("South");
+                newVehicle.add("East");
+            }
+            else if(lastVehicle.direction == Vehicle.Direction.SouthWest){
+                newVehicle.add("South");
+                newVehicle.add("West");
+            }
+            else if(lastVehicle.direction == Vehicle.Direction.WestEast){
+                newVehicle.add("West");
+                newVehicle.add("East");
+            }
+            else{
+                newVehicle.add("West");
+                newVehicle.add("South");
+            }
+            if(lastVehicle.status){
+                newVehicle.add("Pass");
+            }
+            else
+                newVehicle.add("Wait");
+            newVehicle.add(String.valueOf(lastVehicle.remainingTime));
+
+            model.addRow(newVehicle);
+        }
+        
     }
 
     public void updateTableUI(boolean b1, boolean b2, boolean b3, long t1, long t2, long t3){
@@ -150,6 +215,7 @@ class TrafficLights extends TimerTask {
                             this.remainingTime[0], 
                             this.remainingTime[1], 
                             this.remainingTime[2]);
+        this.updateVehicles(this.processedQueue);
     }
 
     public void displayVehiclesStatus() {
@@ -213,6 +279,10 @@ class Main {
         String[][] rowData = {{"T1","Green","60"},{"T2","Red","60"},{"T3","Red","120"}};
         JTable trafficTable = new JTable(rowData, cols);
 
+        String[] colsVehicle = {"Vehicle", "Source", "Destination", "Status", "Remaining Time"};
+        String[][] vehicleData = {{"","","","",""}};
+        JTable vehicleTable = new JTable(vehicleData,colsVehicle);
+
         frame.setSize( 460, 700 );
 
         panel.setLayout(new BorderLayout());
@@ -221,6 +291,11 @@ class Main {
         panel.setBounds(50,100,340,70);
         frame.add(panel);
 
+        JScrollPane scrollPane = new JScrollPane(vehicleTable);
+        // scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);  
+        JPanel p = new JPanel();
+        p.add(scrollPane, BorderLayout.CENTER);
+
         directionFrom.setBounds(50, 50, 100, 20);
         directionTo.setBounds(170, 50, 100, 20);
         submit.setBounds(290, 50, 100, 20);
@@ -228,11 +303,19 @@ class Main {
         frame.add(directionTo);
         frame.add(submit);
 
+
+        // p1.setLayout(new BorderLayout());
+        // p1.add(vehicleTable, BorderLayout.CENTER);
+        // p1.add(vehicleTable.getTableHeader(), BorderLayout.NORTH);
+        p.setBounds(50,200,460,300);
+        // frame.add(p1);
+        frame.add(p);  
+
         frame.setLayout(null);
         frame.setVisible(true);
         
 
-        TrafficLights trafficLights = new TrafficLights(1, t1Queue, t2Queue, t3Queue, trafficTable);
+        TrafficLights trafficLights = new TrafficLights(1, t1Queue, t2Queue, t3Queue, trafficTable, vehicleTable);
         // NewVehicle vehicleUI = new NewVehicle(frame, t1Queue, t2Queue, t3Queue, trafficLights);
 
         submit.addActionListener(new ActionListener(){
