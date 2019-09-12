@@ -104,7 +104,7 @@ class TrafficLights extends TimerTask {
                             this.remainingTime[0], 
                             this.remainingTime[1], 
                             this.remainingTime[2]);
-        this.updateVehicles(this.processedQueue);
+        this.updateVehicles();
     }
 
     public void processVehicleQueues() {
@@ -129,10 +129,11 @@ class TrafficLights extends TimerTask {
         }
     }
 
-    public void updateVehicles(Queue<Vehicle> vehicles){
+    public void updateVehicles(){
         int i=0;
+        // System.out.print("-----------------------------------");
         Vehicle lastVehicle = new Vehicle(0,0,Vehicle.Direction.EastSouth);
-        for(Vehicle item: vehicles){
+        for(Vehicle item: this.processedQueue){
             if(i >= vehicleTable.getRowCount()){
                 lastVehicle.id = item.id;
                 lastVehicle.timeStamp = item.timeStamp;
@@ -148,7 +149,7 @@ class TrafficLights extends TimerTask {
             vehicleTable.setValueAt(String.valueOf(item.remainingTime), i, 4);
             i++;    
         }
-        if(vehicles.size() > vehicleTable.getRowCount()){
+        if(this.processedQueue.size() > vehicleTable.getRowCount()){
             DefaultTableModel model = (DefaultTableModel) vehicleTable.getModel();
             Vector<String> newVehicle = new Vector<String>();
             newVehicle.add(String.valueOf(lastVehicle.id));
@@ -185,7 +186,7 @@ class TrafficLights extends TimerTask {
 
             model.addRow(newVehicle);
         }
-        // System.out.println("----------------------------------------" + vehicleTable.getRowCount() + "++++++++++++" + vehicles.size());
+        // System.out.println("----------------------------------------" + vehicleTable.getRowCount() + "++++++++++++" + this.processedQueue.size());
         
     }
 
@@ -216,7 +217,7 @@ class TrafficLights extends TimerTask {
                             this.remainingTime[0], 
                             this.remainingTime[1], 
                             this.remainingTime[2]);
-        this.updateVehicles(this.processedQueue);
+        this.updateVehicles();
     }
 
     public void displayVehiclesStatus() {
@@ -281,8 +282,10 @@ class Main {
         JTable trafficTable = new JTable(rowData, cols);
 
         String[] colsVehicle = {"Vehicle", "Source", "Destination", "Status", "Remaining Time"};
-        String[][] vehicleData = {};
-        JTable vehicleTable = new JTable(vehicleData,colsVehicle);
+        // String[][] vehicleData = {};
+        DefaultTableModel vehicleModel = new DefaultTableModel();
+        vehicleModel.setColumnIdentifiers(colsVehicle);
+        JTable vehicleTable = new JTable(vehicleModel);
 
         frame.setSize( 460, 700 );
 
