@@ -145,9 +145,6 @@ class MySealingThread extends Thread {
 }
 
 class Main {
-    
-    
-
 
     static void printBottleStatus(Buffer unfinishedB1,
                                     Buffer unfinishedB2,
@@ -228,14 +225,14 @@ class Main {
         }
 
         System.out.println("Bottle Type   Status\t\t\tCount");
-        System.out.println("B1            In Godown\t\t\t" + countGodownB1);
         System.out.println("B1            Packaged\t\t\t" + (countPackagedB1 + countGodownB1));
         System.out.println("B1            Sealed\t\t\t" + (countSealedB1 + countGodownB1));
-        System.out.println("B1            Unfinished\t\t" + countUnfinishedB1);
-        System.out.println("B2            In Godown\t\t\t" + countGodownB2);
+        System.out.println("B1            In Godown\t\t\t" + countGodownB1);
+        // System.out.println("B1            Unfinished\t\t" + countUnfinishedB1);
         System.out.println("B2            Packaged\t\t\t" + (countPackagedB2 + countGodownB2));
         System.out.println("B2            Sealed\t\t\t" + (countSealedB2 + countGodownB2));
-        System.out.println("B2            Unfinished\t\t" + countUnfinishedB2);       
+        System.out.println("B2            In Godown\t\t\t" + countGodownB2);
+        // System.out.println("B2            Unfinished\t\t" + countUnfinishedB2);       
     }
 
     public static void main (String[] args) throws InterruptedException {

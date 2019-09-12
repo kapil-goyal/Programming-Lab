@@ -6,14 +6,38 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
-
-// import Vehicle.Direction;
-
 import javax.swing.JTable;
+import javax.swing.JScrollPane;
 import java.awt.BorderLayout;
 import java.awt.Color;
 
-import javax.swing.JScrollPane;
+class Vehicle {
+    enum Direction {
+        EastWest,
+        WestEast,
+        SouthWest,
+        WestSouth,
+        EastSouth,
+        SouthEast
+    }
+    int id;
+    long timeStamp;
+    long remainingTime;
+    boolean status;
+    Direction direction;
+
+    public Vehicle(int id, long currentTime, Direction direction) {
+        this.id = id;
+        this.timeStamp = currentTime;
+        this.remainingTime = Integer.MAX_VALUE;
+        this.status = false;
+        this.direction = direction;
+    }
+
+    public void printVehicleStatus() {
+        System.out.println(id + "\t" + direction + "\t" + status + "\t" + remainingTime);
+    }
+}
 
 class VehicleQueue {
     Queue<Vehicle> laneQueue;
@@ -29,6 +53,10 @@ class VehicleQueue {
     public synchronized void addNewVehicle(Vehicle newVehicle, TrafficLights trafficLights) {
         laneQueue.add(newVehicle);
         trafficLights.processVehicleQueues();
+        if (newVehicle.remainingTime == 0) {
+            newVehicle.status = true;
+        }
+        trafficLights.updateVehicleTableUI();
     }
 
     public Vehicle getNewVehicle() {
@@ -39,6 +67,7 @@ class VehicleQueue {
     }
 
     public void processVehicleQueue(long currentTime, Queue<Vehicle> processedQueue, TrafficLights trafficLights) {
+        this.nextAssignTime = currentTime > this.nextAssignTime ? currentTime : this.nextAssignTime;
         while (true) {
             Vehicle newVehicle = this.getNewVehicle();
             if (newVehicle == null)
@@ -104,7 +133,7 @@ class TrafficLights extends TimerTask {
                             this.remainingTime[0], 
                             this.remainingTime[1], 
                             this.remainingTime[2]);
-        this.updateVehicles();
+        this.updateVehicleTableUI();
     }
 
     public void processVehicleQueues() {
@@ -129,7 +158,7 @@ class TrafficLights extends TimerTask {
         }
     }
 
-    public void updateVehicles(){
+    public void updateVehicleTableUI(){
         int i=0;
         // System.out.print("-----------------------------------");
         Vehicle lastVehicle = new Vehicle(0,0,Vehicle.Direction.EastSouth);
@@ -186,8 +215,7 @@ class TrafficLights extends TimerTask {
 
             model.addRow(newVehicle);
         }
-        // System.out.println("----------------------------------------" + vehicleTable.getRowCount() + "++++++++++++" + this.processedQueue.size());
-        
+        // System.out.println("----------------------------------------" + vehicleTable.getRowCount() + "++++++++++++" + this.processedQueue.size());   
     }
 
     public void updateTableUI(boolean b1, boolean b2, boolean b3, long t1, long t2, long t3){
@@ -207,30 +235,27 @@ class TrafficLights extends TimerTask {
     }
 
     public void displayTrafficLight() {
-        System.out.println("Traffic Light\tStatus\tTime");
-        System.out.println("T1\t\t" + (activeTrafficLight-1 == 0) + "\t\t" + this.remainingTime[0]);
-        System.out.println("T2\t\t" + (activeTrafficLight-1 == 1) + "\t\t" + this.remainingTime[1]);
-        System.out.println("T3\t\t" + (activeTrafficLight-1 == 2) + "\t\t" + this.remainingTime[2]);
+        // System.out.println("Traffic Light\tStatus\tTime");
+        // System.out.println("T1\t\t" + (activeTrafficLight-1 == 0) + "\t\t" + this.remainingTime[0]);
+        // System.out.println("T2\t\t" + (activeTrafficLight-1 == 1) + "\t\t" + this.remainingTime[1]);
+        // System.out.println("T3\t\t" + (activeTrafficLight-1 == 2) + "\t\t" + this.remainingTime[2]);
         this.updateTableUI((activeTrafficLight-1 == 0), 
                             (activeTrafficLight-1 == 1), 
                             (activeTrafficLight-1 == 2), 
                             this.remainingTime[0], 
                             this.remainingTime[1], 
                             this.remainingTime[2]);
-        this.updateVehicles();
     }
 
     public void displayVehiclesStatus() {
-        System.out.println("Vehicle\tDirection\tStatus\tRemaining Time");
-        for (Vehicle eachVehicle : this.processedQueue) {
-            eachVehicle.printVehicleStatus();
-        }
+        // System.out.println("Vehicle\tDirection\tStatus\tRemaining Time");
+        // for (Vehicle eachVehicle : this.processedQueue) {
+        //     eachVehicle.printVehicleStatus();
+        // }
+        this.updateVehicleTableUI();
     }
 
     public void run() {
-        // System.out.println(this.elapsedTime);
-        System.out.println("\f");
-        // this.elapsedTime++;
         displayTrafficLight();
         displayVehiclesStatus();
         this.elapsedTime++;
@@ -250,13 +275,12 @@ class Mythread extends Thread {
     TrafficLights trafficLights;
     Timer timer;
     
-
     public Mythread(TrafficLights trafficLights) {
         this.trafficLights = trafficLights;
         timer = new Timer();
     }
     public void run() {
-        timer.schedule(this.trafficLights, 0, 500);
+        timer.schedule(this.trafficLights, 0, 1000);
     }
 }
 
@@ -274,53 +298,40 @@ class Main {
         JTextField directionTo = new JTextField(10);
         JButton submit = new JButton("Submit");
         JFrame frame = new JFrame();
-        JPanel panel = new JPanel();
-        JPanel p1 = new JPanel();
+        JPanel trafficPanel = new JPanel();
+        JPanel vehiclePanel = new JPanel();
 
         String[] cols = {"Traffic Light", "Status", "Time"};
         String[][] rowData = {{"T1","Green","60"},{"T2","Red","60"},{"T3","Red","120"}};
         JTable trafficTable = new JTable(rowData, cols);
+        trafficPanel.setLayout(new BorderLayout());
+        trafficPanel.add(trafficTable, BorderLayout.CENTER);
+        trafficPanel.add(trafficTable.getTableHeader(), BorderLayout.NORTH);
 
         String[] colsVehicle = {"Vehicle", "Source", "Destination", "Status", "Remaining Time"};
-        // String[][] vehicleData = {};
         DefaultTableModel vehicleModel = new DefaultTableModel();
         vehicleModel.setColumnIdentifiers(colsVehicle);
-        JTable vehicleTable = new JTable(vehicleModel);
-
-        frame.setSize( 460, 700 );
-
-        panel.setLayout(new BorderLayout());
-        panel.add(trafficTable, BorderLayout.CENTER);
-        panel.add(trafficTable.getTableHeader(), BorderLayout.NORTH);
-        panel.setBounds(50,100,340,70);
-        frame.add(panel);
-
+        JTable vehicleTable = new JTable(vehicleModel);     
         JScrollPane scrollPane = new JScrollPane(vehicleTable);
-        // scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);  
-        JPanel p = new JPanel();
-        p.add(scrollPane, BorderLayout.CENTER);
+        vehiclePanel.add(scrollPane, BorderLayout.CENTER);
 
-        directionFrom.setBounds(50, 50, 100, 20);
-        directionTo.setBounds(170, 50, 100, 20);
-        submit.setBounds(290, 50, 100, 20);
+        frame.setSize( 520, 700 );
+        directionFrom.setBounds(70, 50, 100, 20);
+        directionTo.setBounds(190, 50, 100, 20);
+        submit.setBounds(310, 50, 100, 20);
+        trafficPanel.setBounds(70,100,340,70);
+        vehiclePanel.setBounds(-50,200,600,500);
+
+        frame.add(vehiclePanel); 
+        frame.add(trafficPanel);
         frame.add(directionFrom);
         frame.add(directionTo);
         frame.add(submit);
 
-
-        // p1.setLayout(new BorderLayout());
-        // p1.add(vehicleTable, BorderLayout.CENTER);
-        // p1.add(vehicleTable.getTableHeader(), BorderLayout.NORTH);
-        p.setBounds(50,200,460,300);
-        // frame.add(p1);
-        frame.add(p);  
-
         frame.setLayout(null);
         frame.setVisible(true);
         
-
         TrafficLights trafficLights = new TrafficLights(1, t1Queue, t2Queue, t3Queue, trafficTable, vehicleTable);
-        // NewVehicle vehicleUI = new NewVehicle(frame, t1Queue, t2Queue, t3Queue, trafficLights);
 
         submit.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e){
@@ -328,11 +339,9 @@ class Main {
                 if (s.equals("Submit")) { 
                     String source = directionFrom.getText();
                     String destination = directionTo.getText();        
-                    directionFrom.setText("");
-                    directionTo.setText(""); 
-                    System.out.println(source + " "+ destination);   
+                    // System.out.println(source + " "+ destination);   
                     if (source.equals("N") || destination.equals("N")) {
-                        System.out.println("Error: Invalid input");
+                        // System.out.println("Error: Invalid input");
                     }
                     else if (source.equals("S") && destination.equals("E")) {
                         Vehicle newVehicle = new Vehicle(vehicleID++, trafficLights.elapsedTime, Vehicle.Direction.SouthEast);
@@ -347,64 +356,13 @@ class Main {
                         t3Queue.addNewVehicle(newVehicle, trafficLights);
                     }
                     else {
-                        System.out.println("Invalid Input");
+                        // System.out.println("Invalid Input");
                     }
                 }
             } 
         });
 
-        // Panel pane = new JPanel();
-        // lightsTable.setBounds(30, 40, 200, 300); 
-        // pane.setBounds(0,0,400,400);
-        // pane.add(lightsTable);
-        
-        // frame.add(pane);
-        
-        
-
-        // int x = 4;
-
-        // while (x-- > 0) {
-        //     String source = input.next();
-        //     String destination = input.next();
-
-        //     System.out.println(source);
-        //     System.out.println(destination);
-
-        //     if (source.equals("N") || destination.equals("N")) {
-        //         System.out.println("Error: Invalid input");
-        //     }
-        //     else if (source.equals("S") && destination.equals("E")) {
-        //         Vehicle newVehicle = new Vehicle(vehicleID++, (System.currentTimeMillis() / 1000), Vehicle.Direction.SouthEast);
-        //         t1Queue.addNewVehicle(newVehicle, trafficLights);
-        //     }
-        //     else if (source.equals("W") && destination.equals("S")) {
-        //         Vehicle newVehicle = new Vehicle(vehicleID++, (System.currentTimeMillis() / 1000), Vehicle.Direction.WestSouth);
-        //         t2Queue.addNewVehicle(newVehicle, trafficLights);
-        //     }
-        //     else if (source.equals("E") && destination.equals("W")) {
-        //         Vehicle newVehicle = new Vehicle(vehicleID++, (System.currentTimeMillis() / 1000), Vehicle.Direction.EastWest);
-        //         t3Queue.addNewVehicle(newVehicle, trafficLights);
-        //     }
-        //     else {
-        //         System.out.println("Invalid Input");
-        //     }
-        // }
-        // while (true) {
-        //     ;
-        // }
-        // System.out.println(t1Queue);
-        // System.out.println(t2Queue);
-        // System.out.println(t3Queue);
-        // t1Queue.print();
-        // t2Queue.print();
-        // t3Queue.print();
-        // for (Vehicle eachVehicle : trafficLights.processedQueue) {
-        //     eachVehicle.printVehicleStatus();
-        // }
-        
         Mythread tempthread = new Mythread(trafficLights);
         tempthread.start();
-        // tempthread.join();
     }
 }
