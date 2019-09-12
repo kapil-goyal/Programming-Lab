@@ -185,6 +185,7 @@ class TrafficLights extends TimerTask {
 
             model.addRow(newVehicle);
         }
+        // System.out.println("----------------------------------------" + vehicleTable.getRowCount() + "++++++++++++" + vehicles.size());
         
     }
 
@@ -280,7 +281,7 @@ class Main {
         JTable trafficTable = new JTable(rowData, cols);
 
         String[] colsVehicle = {"Vehicle", "Source", "Destination", "Status", "Remaining Time"};
-        String[][] vehicleData = {{"","","","",""}};
+        String[][] vehicleData = {};
         JTable vehicleTable = new JTable(vehicleData,colsVehicle);
 
         frame.setSize( 460, 700 );
