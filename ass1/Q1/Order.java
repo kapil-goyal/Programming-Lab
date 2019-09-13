@@ -1,8 +1,13 @@
+// class containing details about an order
 public class Order {
+    // unique id of each order
     int orderID;
+    // quantity of commodities ordered
     int quantity;
+    // order status
     boolean isSuccessful;
 
+    // available type of products
     enum Type {
         SMALLSHIRT,
         MEDIUMSHIRT,
@@ -10,8 +15,10 @@ public class Order {
         CAP
     }
 
+    // type of product ordered
     Type type;
 
+    // constructor for creating a new order
     public Order(int id, char c, int quant) {
         orderID = id;
         quantity = quant;
