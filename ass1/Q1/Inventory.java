@@ -20,10 +20,9 @@ public class Inventory {
         // check order status
         if (status) {
             //print order successful
-            System.out.println("Order " +  orderID + " is successful");
+            System.out.println("Order " + orderID + " is successful");
             System.out.println();
-        }
-        else {
+        } else {
             //print order failed
             System.out.println("Order " + orderID + " is failed");
             System.out.println();
@@ -38,8 +37,7 @@ public class Inventory {
             this.printOrderStatus(true, newOrder.orderID);
             //update inventory
             this.smallShirt -= newOrder.quantity;
-        }
-        else {
+        } else {
             // call method to print failed order
             this.printOrderStatus(false, newOrder.orderID);
         }
@@ -53,8 +51,7 @@ public class Inventory {
             this.printOrderStatus(true, newOrder.orderID);
             //update inventory
             this.mediumShirt -= newOrder.quantity;
-        }
-        else {
+        } else {
             // call method to print failed order
             this.printOrderStatus(false, newOrder.orderID);
         }
@@ -68,8 +65,7 @@ public class Inventory {
             this.printOrderStatus(true, newOrder.orderID);
             //update inventory
             this.largeShirt -= newOrder.quantity;
-        }
-        else {
+        } else {
             // call method to print failed order
             this.printOrderStatus(false, newOrder.orderID);
         }
@@ -83,8 +79,7 @@ public class Inventory {
             this.printOrderStatus(true, newOrder.orderID);
             //update inventory
             this.cap -= newOrder.quantity;
-        }
-        else {
+        } else {
             // call method to print failed order
             this.printOrderStatus(false, newOrder.orderID);
         }
@@ -95,14 +90,11 @@ public class Inventory {
         // checks product type and calls corresponding methods to process order
         if (newOrder.type == Order.Type.SMALLSHIRT) {
             this.processSmallShirt(newOrder);
-        }
-        else if (newOrder.type == Order.Type.MEDIUMSHIRT) {
+        } else if (newOrder.type == Order.Type.MEDIUMSHIRT) {
             this.processMediumShirt(newOrder);
-        }
-        else if (newOrder.type == Order.Type.LARGESHIRT) {
+        } else if (newOrder.type == Order.Type.LARGESHIRT) {
             this.processLargeShirt(newOrder);
-        }
-        else if (newOrder.type == Order.Type.CAP) {
+        } else if (newOrder.type == Order.Type.CAP) {
             this.processCap(newOrder);
         }
     }

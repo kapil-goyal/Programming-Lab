@@ -3,7 +3,7 @@ import java.util.*;
 //handles the sealing operation
 class Sealing {
 
-    enum State{
+    enum State {
         EMPTY,
         SEALING,
         WAITING
@@ -27,13 +27,12 @@ class Sealing {
     Buffer godownB2;
 
     //constructor for sealing class
-    public Sealing(UnfinishedTray unfinishedTray, 
-                    Buffer packagedB1, 
-                    Buffer packagedB2, 
-                    Buffer sealed, 
-                    Buffer godownB1, 
-                    Buffer godownB2) 
-    {
+    public Sealing(UnfinishedTray unfinishedTray,
+                   Buffer packagedB1,
+                   Buffer packagedB2,
+                   Buffer sealed,
+                   Buffer godownB1,
+                   Buffer godownB2) {
         this.state = State.EMPTY;
         this.currentBottle = null;
         this.unfinishedTray = unfinishedTray;
@@ -55,12 +54,12 @@ class Sealing {
     }
 
     //handles the processing of the sealing unit
-    public int Process(int currentTime, int packNextWakeupTime){
+    public int Process(int currentTime, int packNextWakeupTime) {
         //check if sealing has started
-        if(this.state == State.SEALING)  {
+        if (this.state == State.SEALING) {
             //change state to waiting and return time of sealing
             this.state = State.WAITING;
-            return  currentTime + 3;
+            return currentTime + 3;
         }
         //check if sealing has finished
         else if (this.state == State.WAITING) {
@@ -76,8 +75,7 @@ class Sealing {
                     this.currentBottle = null;
                     this.state = State.EMPTY;
                     return currentTime;
-                }
-                else {
+                } else {
                     //change state of bottle to ingodown
                     this.currentBottle.changeState(Bottle.State.INGODOWN);
                     //add bottle to godown B2 buffer
@@ -99,40 +97,35 @@ class Sealing {
                     this.currentBottle = null;
                     this.state = State.EMPTY;
                     return currentTime;
-                }
-                else {
+                } else {
                     //wait for B1 packaging buffer to remove a bottle
                     return packNextWakeupTime;
                 }
-            }
-            else {
+            } else {
                 //check if B2 packaging buffer is full
                 if (this.packagedB2.addNewBottle(this.currentBottle, 3)) {
                     //empty packaging unit and update state
                     this.currentBottle = null;
                     this.state = State.EMPTY;
                     return currentTime;
-                }
-                else {
+                } else {
                     //wait for B2 packaging buffer to remove a bottle
                     return packNextWakeupTime;
                 }
             }
-        }
-        else {
+        } else {
             //wait for sealing buffer to remove a bottle
             this.getNewBottle();
             //check if there is no bottle available in any buffer
             if (this.currentBottle == null) {
                 // set next wake up time same as packaging unit
                 return packNextWakeupTime > currentTime ? packNextWakeupTime : currentTime;
-            }
-            else {
+            } else {
                 // set state equal to sealing
                 this.state = State.SEALING;
                 return currentTime;
             }
-        }        
+        }
     }
-    
+
 }

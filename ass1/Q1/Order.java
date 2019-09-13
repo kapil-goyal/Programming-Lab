@@ -23,7 +23,7 @@ public class Order {
         orderID = id;
         quantity = quant;
         isSuccessful = false;
-        switch(c) {
+        switch (c) {
             case 'C':
                 type = Type.CAP;
                 break;

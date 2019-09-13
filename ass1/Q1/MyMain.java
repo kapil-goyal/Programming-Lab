@@ -1,17 +1,18 @@
 import java.util.*;
-import java.util.concurrent.ExecutorService;  
-import java.util.concurrent.Executors; 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 
 class WorkerThread implements Runnable {
     Inventory myInventory;
     Order myOrder;
-    WorkerThread (Inventory myInventory, Order myOrder) {
+
+    WorkerThread(Inventory myInventory, Order myOrder) {
         this.myInventory = myInventory;
         this.myOrder = myOrder;
     }
 
-    public void run () {
+    public void run() {
         myInventory.processOrder(myOrder);
     }
 }
@@ -43,13 +44,13 @@ class MyMain {
         Order[] Orders = new Order[orders];
 
         System.out.println("Enter Orders");
-        
+
         //takes orders input and stores them
         for (int i = 0; i < orders; i++) {
-            System.out.print((i+1) + " ");
+            System.out.print((i + 1) + " ");
             char type;
             int quantity;
-            int orderid = i+1;
+            int orderid = i + 1;
             type = input.next().charAt(0);
             quantity = input.nextInt();
 
@@ -71,10 +72,11 @@ class MyMain {
         }
 
         //completes allocated tasks and terminates the executor
-        executor.shutdown();  
-        
+        executor.shutdown();
+
         //waits for the executor to terminate
-        while (!executor.isTerminated()) {   } 
+        while (!executor.isTerminated()) {
+        }
     }
 
 }

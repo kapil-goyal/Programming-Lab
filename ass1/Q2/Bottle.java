@@ -10,7 +10,7 @@ public class Bottle {
 
     //possible bottle types
     enum Type {
-        B1, 
+        B1,
         B2
     }
 
@@ -26,8 +26,7 @@ public class Bottle {
         //assign bottle type
         if (isB1) {
             this.type = Type.B1;
-        }
-        else {
+        } else {
             this.type = Type.B2;
         }
     }
