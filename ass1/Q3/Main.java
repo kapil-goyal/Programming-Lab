@@ -237,15 +237,20 @@ class TrafficLights extends TimerTask {
     // Vehicle table for UI
     JTable vehicleTable;
 
+    //label to store current time
+    JLabel timeValue;
+
     // Constructor for Traffic Light class
     public TrafficLights(int activeTrafficLight,
                          VehicleQueue t1Queue,
                          VehicleQueue t2Queue,
                          VehicleQueue t3Queue,
                          JTable trafficTable,
-                         JTable vehicleTable) {
+                         JTable vehicleTable,
+                         JLabel timeValue) {
         this.activeTrafficLight = activeTrafficLight;
         this.elapsedTime = 0;
+        this.timeValue = timeValue;
         this.t1Queue = t1Queue;
         this.t2Queue = t2Queue;
         this.t3Queue = t3Queue;
@@ -313,7 +318,6 @@ class TrafficLights extends TimerTask {
 
         // Stores index of each vehicle in processed queue
         int i = 0;
-
         // lastvehicle stores a vehicle pointer if a new vehicle is added in the processed queue
         Vehicle lastVehicle = new Vehicle(0, 0, Vehicle.Direction.EastSouth);
 
@@ -392,6 +396,8 @@ class TrafficLights extends TimerTask {
         this.trafficTable.setValueAt("Red", 0, 1);
         this.trafficTable.setValueAt("Red", 1, 1);
         this.trafficTable.setValueAt("Red", 2, 1);
+        //update elapsed time for label
+        this.timeValue.setText(String.valueOf(this.elapsedTime));
         if (b1)
             this.trafficTable.setValueAt("Green", 0, 1);
         else if (b2)
@@ -482,6 +488,7 @@ class Main {
 
     // Vehicle id is initialized as 1
     static int vehicleID = 1;
+    static boolean isStart = false;
 
     // Main function
     public static void main(String[] args) {
@@ -492,13 +499,33 @@ class Main {
         VehicleQueue t3Queue = new VehicleQueue(2, 120);
 
         // UI elements
-        JTextField directionFrom = new JTextField(10);
-        ;
-        JTextField directionTo = new JTextField(10);
+        JTextField EastWest = new JTextField(10);
+        JTextField EastSouth = new JTextField(10);
+        JTextField SouthWest = new JTextField(10);
+        JTextField SouthEast = new JTextField(10);
+        JTextField WestEast = new JTextField(10);
+        JTextField WestSouth = new JTextField(10);
+        EastSouth.setText("");
+        EastWest.setText("");
+        WestSouth.setText("");
+        SouthEast.setText("");
+        WestEast.setText("");
+        SouthWest.setText("");
+        JLabel ew = new JLabel("East-West");
+        JLabel we = new JLabel("West-East");
+        JLabel es = new JLabel("East-South");
+        JLabel se = new JLabel("South-East");
+        JLabel ws = new JLabel("West-South");
+        JLabel sw = new JLabel("South-West");
+        JLabel timeLabel = new JLabel("Timestamp");
+        JTextField timeField = new JTextField(10);
         JButton submit = new JButton("Submit");
         JFrame frame = new JFrame();
         JPanel trafficPanel = new JPanel();
         JPanel vehiclePanel = new JPanel();
+        JLabel timeCurrent = new JLabel("Time Elapsed:");
+        JLabel timeValue = new JLabel("0");
+        JButton startSim = new JButton("Start");
 
         // Traffic table UI element
         String[] cols = {"Traffic Light", "Status", "Time"};
@@ -518,26 +545,62 @@ class Main {
 
         // Set UI bounds
         frame.setSize(520, 700);
-        directionFrom.setBounds(70, 50, 100, 20);
-        directionTo.setBounds(190, 50, 100, 20);
-        submit.setBounds(310, 50, 100, 20);
-        trafficPanel.setBounds(70, 100, 340, 70);
-        vehiclePanel.setBounds(-50, 200, 600, 500);
+        EastWest.setBounds(70, 50, 100, 20);
+        WestEast.setBounds(200, 50, 100, 20);
+        SouthWest.setBounds(330, 50, 100, 20);
+        WestSouth.setBounds(70, 100, 100, 20);
+        EastSouth.setBounds(200, 100, 100, 20);
+        SouthEast.setBounds(330, 100, 100, 20);
+        ew.setBounds(70, 30, 100, 20);
+        we.setBounds(200, 30, 100, 20);
+        sw.setBounds(330, 30, 100, 20);
+        ws.setBounds(70, 80, 100, 20);
+        es.setBounds(200, 80, 100, 20);
+        se.setBounds(330, 80, 100, 20);
+        timeCurrent.setBounds(195, 0 , 100, 20);
+        timeValue.setBounds(295,0,100,20);
+        timeLabel.setBounds(70, 130, 100, 20);
+        timeField.setBounds(70, 150, 100, 20);
+        submit.setBounds(200, 150, 100, 20);
+        trafficPanel.setBounds(70, 190, 340, 70);
+        vehiclePanel.setBounds(-50, 280, 600, 500);
+        startSim.setBounds(330, 150, 100, 20);
 
         // Add UI elements in UI frame
         frame.add(vehiclePanel);
         frame.add(trafficPanel);
-        frame.add(directionFrom);
-        frame.add(directionTo);
+        frame.add(timeCurrent);
+        frame.add(EastWest);
+        frame.add(WestEast);
+        frame.add(SouthWest);
+        frame.add(WestSouth);
+        frame.add(EastSouth);
+        frame.add(SouthEast);
+        frame.add(we);
+        frame.add(ew);
+        frame.add(ws);
+        frame.add(sw);
+        frame.add(es);
+        frame.add(se);
+        frame.add(timeField);
+        frame.add(timeLabel);
+        frame.add(timeValue);
         frame.add(submit);
+        frame.add(startSim);
 
         frame.setLayout(null);
         frame.setVisible(true);
 
         // Initialize traffic light object
         TrafficLights trafficLights = new TrafficLights(1,
-                t1Queue, t2Queue, t3Queue, trafficTable, vehicleTable);
+                t1Queue, t2Queue, t3Queue, trafficTable, vehicleTable, timeValue);
 
+        startSim.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                isStart = true;
+            }
+        });
+        
         // Submit listener
         // action performed function is called whenever submit button is pressed
         submit.addActionListener(new ActionListener() {
@@ -545,9 +608,44 @@ class Main {
                 String s = e.getActionCommand();
                 if (s.equals("Submit")) {
 
+                    int eastWest = 0;
+                    if(EastWest.getText().length()!=0){
+                        eastWest = Integer.parseInt(EastWest.getText());
+                    }
+                    int westEast = 0;
+                    if(WestEast.getText().length()!=0){
+                        westEast = Integer.parseInt(WestEast.getText());
+                    }
+                    int eastSouth = 0;
+                    if(EastSouth.getText().length()!=0){
+                        eastSouth = Integer.parseInt(EastSouth.getText());
+                    }
+                    int southEast = 0;
+                    if(SouthEast.getText().length()!=0){
+                        southEast = Integer.parseInt(SouthEast.getText());
+                    }
+                    int westSouth = 0;
+                    if(WestSouth.getText().length()!=0){
+                        westSouth= Integer.parseInt(WestSouth.getText());
+                    }
+                    int southWest = 0;
+                    if(SouthWest.getText().length()!=0){
+                        southWest = Integer.parseInt(SouthWest.getText());
+                    }
+                    long timeInput = trafficLights.elapsedTime;
+                    if(timeField.getText().length()!=0){
+                        timeInput = Long.parseLong(timeField.getText());
+                    }
+                    EastSouth.setText("");
+                    EastWest.setText("");
+                    WestSouth.setText("");
+                    SouthEast.setText("");
+                    WestEast.setText("");
+                    SouthWest.setText("");
+                    System.out.println(eastSouth + " " + eastWest + " "+ westEast + " "+westSouth+" "+southEast+" "+southWest+" "+timeInput);
                     // Store source and destination direction
-                    String source = directionFrom.getText();
-                    String destination = directionTo.getText();
+                    String source = "";
+                    String destination = "";
 
                     // Add a vehicle in T1 traffic light lane
                     if (source.equals("S") && destination.equals("E")) {
@@ -604,6 +702,7 @@ class Main {
 
         // Make a new thread which simulates traffic light system and start it
         Mythread simulateTrafficLight = new Mythread(trafficLights);
+        while(!isStart){ System.out.print(""); }
         simulateTrafficLight.start();
     }
 }
