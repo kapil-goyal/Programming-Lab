@@ -1,4 +1,5 @@
 import java.util.*;
+import java.util.concurrent.locks.ReentrantLock; 
 
 class UnfinishedTray {
     boolean b1Pack, b1Seal;
@@ -64,27 +65,35 @@ class UnfinishedTray {
 
 class Buffer {
     Queue<Bottle> tray;
+    private final ReentrantLock bottleLock;
 
     public Buffer() {
         tray = new LinkedList<Bottle>();
+        bottleLock = new ReentrantLock();
     }
 
-    synchronized Bottle getNewBottle() {
+    public Bottle getNewBottle() {
+        bottleLock.lock();
         if (this.getSize() > 0) {
             Bottle newBottle = tray.remove();
+            bottleLock.unlock();
             return newBottle;
         }
         else {
+            bottleLock.unlock();
             return null;
         }   
     }
 
-    synchronized boolean addNewBottle(Bottle newBottle, int maxSize) {
+    public boolean addNewBottle(Bottle newBottle, int maxSize) {
+        bottleLock.lock();
         if (this.getSize() < maxSize) {
             tray.add(newBottle);
+            bottleLock.unlock();
             return true;
         }
         else {
+            bottleLock.unlock();
             return false;
         } 
     }

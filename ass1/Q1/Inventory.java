@@ -11,56 +11,56 @@ public class Inventory {
         cap = c;
     }
 
-    synchronized void processSmallShirt(Order newOrder) {
-        // this.displayInventory();
-        if (this.smallShirt >= newOrder.quantity) {
-            this.smallShirt -= newOrder.quantity;
-            newOrder.isSuccessful = true;
-            System.out.println("Order " +  newOrder.orderID + " is successful");
+    synchronized void printOrderStatus(boolean status, int orderID) {
+        this.displayInventory();
+        if (status) {
+            System.out.println("Order " +  orderID + " is successful");
+            System.out.println();
         }
         else {
-            System.out.println("Order " + newOrder.orderID + " is failed");
+            System.out.println("Order " + orderID + " is failed");
+            System.out.println();
         }
-        this.displayInventory();
+    }
+
+    synchronized void processSmallShirt(Order newOrder) {
+        if (this.smallShirt >= newOrder.quantity) {
+            this.printOrderStatus(true, newOrder.orderID);
+            this.smallShirt -= newOrder.quantity;
+        }
+        else {
+            this.printOrderStatus(false, newOrder.orderID);
+        }
     }
 
     synchronized void processMediumShirt(Order newOrder) {
-        // this.displayInventory();
         if (this.mediumShirt >= newOrder.quantity) {
+            this.printOrderStatus(true, newOrder.orderID);
             this.mediumShirt -= newOrder.quantity;
-            newOrder.isSuccessful = true;
-            System.out.println("Order " +  newOrder.orderID + " is successful");
         }
         else {
-            System.out.println("Order " + newOrder.orderID + " is failed");
+            this.printOrderStatus(false, newOrder.orderID);
         }
-        this.displayInventory();
     }
 
     synchronized void processLargeShirt(Order newOrder) {
-        // this.displayInventory();
         if (this.largeShirt >= newOrder.quantity) {
+            this.printOrderStatus(true, newOrder.orderID);
             this.largeShirt -= newOrder.quantity;
-            newOrder.isSuccessful = true;
-            System.out.println("Order " +  newOrder.orderID + " is successful");
         }
         else {
-            System.out.println("Order " + newOrder.orderID + " is failed");
+            this.printOrderStatus(false, newOrder.orderID);
         }
-        this.displayInventory();
     }
 
     synchronized void processCap(Order newOrder) {
-        // this.displayInventory();
         if (this.cap >= newOrder.quantity) {
+            this.printOrderStatus(true, newOrder.orderID);
             this.cap -= newOrder.quantity;
-            newOrder.isSuccessful = true;
-            System.out.println("Order " +  newOrder.orderID + " is successful");
         }
         else {
-            System.out.println("Order " + newOrder.orderID + " is failed");
+            this.printOrderStatus(false, newOrder.orderID);
         }
-        this.displayInventory();
     }
 
     public void processOrder(Order newOrder) {
@@ -80,9 +80,8 @@ public class Inventory {
 
     public void displayInventory() {
         System.out.println("Inventory:  ");
-        System.out.println("S: " + smallShirt);
-        System.out.println("M: " + mediumShirt);
-        System.out.println("L: " + largeShirt);
-        System.out.println("C: " + cap);
+        System.out.println("|\tS\t|\tM\t|\tL\t|\tC\t|");
+        System.out.println("|\t" + smallShirt + "\t|\t" + mediumShirt + "\t|\t" + largeShirt + "\t|\t" + cap + "\t|");
+        System.out.println();
     }
 }

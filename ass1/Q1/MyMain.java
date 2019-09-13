@@ -1,9 +1,11 @@
-import java.util.Scanner;
+import java.util.*;
+import java.util.concurrent.ExecutorService;  
+import java.util.concurrent.Executors; 
 
-class MyThread extends Thread {
+class WorkerThread implements Runnable {
     Inventory myInventory;
     Order myOrder;
-    MyThread (Inventory myInventory, Order myOrder) {
+    WorkerThread (Inventory myInventory, Order myOrder) {
         this.myInventory = myInventory;
         this.myOrder = myOrder;
     }
@@ -33,27 +35,29 @@ class MyMain {
 
         System.out.println("Enter Number of Students ordering");
         int orders = input.nextInt();
-        MyThread[] Orders = new MyThread[orders];
+        Order[] Orders = new Order[orders];
 
         System.out.println("Enter Orders");
 
         for (int i = 0; i < orders; i++) {
-            int orderid;
+            System.out.print((i+1) + " ");
             char type;
             int quantity;
-            orderid = input.nextInt();
+            int orderid = i+1;
             type = input.next().charAt(0);
             quantity = input.nextInt();
 
             Order newOrder = new Order(orderid, type, quantity);
-            Orders[i] = new MyThread(myInventory, newOrder);
+            Orders[i] = newOrder;
         }
 
-        myInventory.displayInventory();
-
+        ExecutorService executor = Executors.newFixedThreadPool(10);
         for (int i = 0; i < orders; i++) {
-            Orders[i].start();
+            Runnable worker = new WorkerThread(myInventory, Orders[i]);
+            executor.execute(worker);
         }
+        executor.shutdown();  
+        while (!executor.isTerminated()) {   } 
     }
 
 }

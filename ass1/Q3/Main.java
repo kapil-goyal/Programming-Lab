@@ -160,7 +160,6 @@ class TrafficLights extends TimerTask {
 
     public void updateVehicleTableUI(){
         int i=0;
-        // System.out.print("-----------------------------------");
         Vehicle lastVehicle = new Vehicle(0,0,Vehicle.Direction.EastSouth);
         for(Vehicle item: this.processedQueue){
             if(i >= vehicleTable.getRowCount()){
@@ -215,7 +214,6 @@ class TrafficLights extends TimerTask {
 
             model.addRow(newVehicle);
         }
-        // System.out.println("----------------------------------------" + vehicleTable.getRowCount() + "++++++++++++" + this.processedQueue.size());   
     }
 
     public void updateTableUI(boolean b1, boolean b2, boolean b3, long t1, long t2, long t3){
@@ -339,24 +337,41 @@ class Main {
                 if (s.equals("Submit")) { 
                     String source = directionFrom.getText();
                     String destination = directionTo.getText();        
-                    // System.out.println(source + " "+ destination);   
-                    if (source.equals("N") || destination.equals("N")) {
-                        // System.out.println("Error: Invalid input");
-                    }
-                    else if (source.equals("S") && destination.equals("E")) {
+                    if (source.equals("S") && destination.equals("E")) {
                         Vehicle newVehicle = new Vehicle(vehicleID++, trafficLights.elapsedTime, Vehicle.Direction.SouthEast);
                         t1Queue.addNewVehicle(newVehicle, trafficLights);
+                    }
+                    else if (source.equals("E") && destination.equals("S")) {
+                        Vehicle newVehicle = new Vehicle(vehicleID++, trafficLights.elapsedTime, Vehicle.Direction.EastSouth);
+                        newVehicle.remainingTime = 0;
+                        newVehicle.status = true;
+                        trafficLights.processedQueue.add(newVehicle);
+                        trafficLights.updateVehicleTableUI();
                     }
                     else if (source.equals("W") && destination.equals("S")) {
                         Vehicle newVehicle = new Vehicle(vehicleID++, trafficLights.elapsedTime, Vehicle.Direction.WestSouth);
                         t2Queue.addNewVehicle(newVehicle, trafficLights);
                     }
+                    else if (source.equals("S") && destination.equals("W")) {
+                        Vehicle newVehicle = new Vehicle(vehicleID++, trafficLights.elapsedTime, Vehicle.Direction.SouthWest);
+                        newVehicle.remainingTime = 0;
+                        newVehicle.status = true;
+                        trafficLights.processedQueue.add(newVehicle);
+                        trafficLights.updateVehicleTableUI();
+                    }
                     else if (source.equals("E") && destination.equals("W")) {
                         Vehicle newVehicle = new Vehicle(vehicleID++, trafficLights.elapsedTime, Vehicle.Direction.EastWest);
                         t3Queue.addNewVehicle(newVehicle, trafficLights);
                     }
+                    else if (source.equals("W") && destination.equals("E")) {
+                        Vehicle newVehicle = new Vehicle(vehicleID++, trafficLights.elapsedTime, Vehicle.Direction.WestEast);
+                        newVehicle.remainingTime = 0;
+                        newVehicle.status = true;
+                        trafficLights.processedQueue.add(newVehicle);
+                        trafficLights.updateVehicleTableUI();
+                    }
                     else {
-                        // System.out.println("Invalid Input");
+                        System.out.println("Invalid Input");
                     }
                 }
             } 
