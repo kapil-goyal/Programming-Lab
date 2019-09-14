@@ -17,7 +17,7 @@ class WorkerThread implements Runnable {
     }
 }
 
-class MyMain {
+class Main {
     public static void main(String[] args) {
         int smallShirt;
         int mediumShirt;

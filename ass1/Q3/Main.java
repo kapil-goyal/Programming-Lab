@@ -517,8 +517,7 @@ class Main {
         JLabel se = new JLabel("South-East");
         JLabel ws = new JLabel("West-South");
         JLabel sw = new JLabel("South-West");
-        JLabel timeLabel = new JLabel("Timestamp");
-        JTextField timeField = new JTextField(10);
+        JButton restart = new JButton("Restart");
         JButton submit = new JButton("Submit");
         JFrame frame = new JFrame();
         JPanel trafficPanel = new JPanel();
@@ -529,7 +528,7 @@ class Main {
 
         // Traffic table UI element
         String[] cols = {"Traffic Light", "Status", "Time"};
-        String[][] rowData = {{"T1", "Green", "60"}, {"T2", "Red", "60"}, {"T3", "Red", "120"}};
+        String[][] rowData = {{"T1 (S ==> E)", "Green", "60"}, {"T2 (W ==> S)", "Red", "60"}, {"T3 (E ==> W)", "Red", "120"}};
         JTable trafficTable = new JTable(rowData, cols);
         trafficPanel.setLayout(new BorderLayout());
         trafficPanel.add(trafficTable, BorderLayout.CENTER);
@@ -544,7 +543,7 @@ class Main {
         vehiclePanel.add(scrollPane, BorderLayout.CENTER);
 
         // Set UI bounds
-        frame.setSize(520, 700);
+        frame.setSize(520, 1000);
         EastWest.setBounds(70, 50, 100, 20);
         WestEast.setBounds(200, 50, 100, 20);
         SouthWest.setBounds(330, 50, 100, 20);
@@ -559,10 +558,13 @@ class Main {
         se.setBounds(330, 80, 100, 20);
         timeCurrent.setBounds(195, 0 , 100, 20);
         timeValue.setBounds(295,0,100,20);
-        timeLabel.setBounds(70, 130, 100, 20);
-        timeField.setBounds(70, 150, 100, 20);
+        restart.setBounds(70, 150, 100, 20);
         submit.setBounds(200, 150, 100, 20);
         trafficPanel.setBounds(70, 190, 340, 70);
+        // scrollPane.setBounds(-50, 280, 600, 900)
+        // scrollPane.setPreferredSize(new Dimension(600, 400));
+        // vehiclePanel.setPreferredSize(new Dimension(600, 900));
+        // vehicleTable.setPreferredSize(new Dimension(600, 400));
         vehiclePanel.setBounds(-50, 280, 600, 500);
         startSim.setBounds(330, 150, 100, 20);
 
@@ -582,8 +584,7 @@ class Main {
         frame.add(sw);
         frame.add(es);
         frame.add(se);
-        frame.add(timeField);
-        frame.add(timeLabel);
+        frame.add(restart);
         frame.add(timeValue);
         frame.add(submit);
         frame.add(startSim);
@@ -595,12 +596,31 @@ class Main {
         TrafficLights trafficLights = new TrafficLights(1,
                 t1Queue, t2Queue, t3Queue, trafficTable, vehicleTable, timeValue);
 
+        // Button to start simulation
         startSim.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 isStart = true;
             }
         });
         
+        // Button to restart simulation
+        restart.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                vehicleID = 1;
+                trafficLights.elapsedTime = 0;
+                trafficLights.activeTrafficLight = 3;
+                trafficLights.updateTrafficLight();
+                trafficLights.updateTableUI(true, false, false, 60, 60, 120);
+                trafficLights.processedQueue.clear();
+                t1Queue.nextAssignTime = trafficLights.elapsedTime;
+                t2Queue.nextAssignTime = trafficLights.elapsedTime;
+                t3Queue.nextAssignTime = trafficLights.elapsedTime;
+                DefaultTableModel model = (DefaultTableModel) vehicleTable.getModel();
+                model.setRowCount(0);
+                isStart = false;
+            }
+        });        
+
         // Submit listener
         // action performed function is called whenever submit button is pressed
         submit.addActionListener(new ActionListener() {
@@ -608,53 +628,87 @@ class Main {
                 String s = e.getActionCommand();
                 if (s.equals("Submit")) {
 
+                    // Take input from UI elements
                     int eastWest = 0;
                     if(EastWest.getText().length()!=0){
-                        eastWest = Integer.parseInt(EastWest.getText());
+                        try {
+                            eastWest = Integer.parseInt(EastWest.getText());    
+                        } catch (Exception exception) {
+                            ;
+                        }
                     }
                     int westEast = 0;
                     if(WestEast.getText().length()!=0){
-                        westEast = Integer.parseInt(WestEast.getText());
+                        try {
+                            westEast = Integer.parseInt(WestEast.getText());    
+                        } catch (Exception exception) {
+                            ;
+                        }
                     }
                     int eastSouth = 0;
                     if(EastSouth.getText().length()!=0){
-                        eastSouth = Integer.parseInt(EastSouth.getText());
+                        try {
+                            eastSouth = Integer.parseInt(EastSouth.getText());    
+                        } catch (Exception exception) {
+                            ;
+                        }
                     }
                     int southEast = 0;
                     if(SouthEast.getText().length()!=0){
-                        southEast = Integer.parseInt(SouthEast.getText());
+                        try {
+                            southEast = Integer.parseInt(SouthEast.getText());    
+                        } catch (Exception exception) {
+                            ;
+                        }
                     }
                     int westSouth = 0;
                     if(WestSouth.getText().length()!=0){
-                        westSouth= Integer.parseInt(WestSouth.getText());
+                        try {
+                            westSouth = Integer.parseInt(WestSouth.getText());    
+                        } catch (Exception exception) {
+                            ;
+                        }
                     }
                     int southWest = 0;
                     if(SouthWest.getText().length()!=0){
-                        southWest = Integer.parseInt(SouthWest.getText());
+                        try {
+                            southWest = Integer.parseInt(SouthWest.getText());    
+                        } catch (Exception exception) {
+                            ;
+                        }
                     }
-                    long timeInput = trafficLights.elapsedTime;
-                    if(timeField.getText().length()!=0){
-                        timeInput = Long.parseLong(timeField.getText());
-                    }
+
+                    // Reset Input elements
                     EastSouth.setText("");
                     EastWest.setText("");
                     WestSouth.setText("");
                     SouthEast.setText("");
                     WestEast.setText("");
                     SouthWest.setText("");
-                    System.out.println(eastSouth + " " + eastWest + " "+ westEast + " "+westSouth+" "+southEast+" "+southWest+" "+timeInput);
-                    // Store source and destination direction
-                    String source = "";
-                    String destination = "";
 
-                    // Add a vehicle in T1 traffic light lane
-                    if (source.equals("S") && destination.equals("E")) {
+                    // Add new vehilcles in the queue
+                    for (int i = 0; i < southEast; i++) {
                         Vehicle newVehicle = new Vehicle(vehicleID++,
                                 trafficLights.elapsedTime, Vehicle.Direction.SouthEast);
                         t1Queue.addNewVehicle(newVehicle, trafficLights);
                     }
-                    // Add a vehicle in processed queue
-                    else if (source.equals("E") && destination.equals("S")) {
+
+                    // Add new vehilcles in the queue
+                    for (int i = 0; i < westSouth; i++) {
+                        Vehicle newVehicle = new Vehicle(vehicleID++,
+                                trafficLights.elapsedTime, Vehicle.Direction.WestSouth);
+                        t2Queue.addNewVehicle(newVehicle, trafficLights);
+                    }
+
+                    // Add new vehilcles in the queue
+                    for (int i = 0; i < eastWest; i++) {
+                        Vehicle newVehicle = new Vehicle(vehicleID++,
+                                trafficLights.elapsedTime, Vehicle.Direction.EastWest);
+                        t3Queue.addNewVehicle(newVehicle, trafficLights);
+                    }
+
+                    // Add new vehilcles in the queue
+                    for (int i = 0; i < eastSouth; i++) {
                         Vehicle newVehicle = new Vehicle(vehicleID++,
                                 trafficLights.elapsedTime, Vehicle.Direction.EastSouth);
                         newVehicle.remainingTime = 0;
@@ -662,29 +716,9 @@ class Main {
                         trafficLights.processedQueue.add(newVehicle);
                         trafficLights.updateVehicleTableUI();
                     }
-                    // Add a vehicle in T1 traffic light lane
-                    else if (source.equals("W") && destination.equals("S")) {
-                        Vehicle newVehicle = new Vehicle(vehicleID++,
-                                trafficLights.elapsedTime, Vehicle.Direction.WestSouth);
-                        t2Queue.addNewVehicle(newVehicle, trafficLights);
-                    }
-                    // Add a vehicle in processed queue
-                    else if (source.equals("S") && destination.equals("W")) {
-                        Vehicle newVehicle = new Vehicle(vehicleID++,
-                                trafficLights.elapsedTime, Vehicle.Direction.SouthWest);
-                        newVehicle.remainingTime = 0;
-                        newVehicle.status = true;
-                        trafficLights.processedQueue.add(newVehicle);
-                        trafficLights.updateVehicleTableUI();
-                    }
-                    // Add a vehicle in T1 traffic light lane
-                    else if (source.equals("E") && destination.equals("W")) {
-                        Vehicle newVehicle = new Vehicle(vehicleID++,
-                                trafficLights.elapsedTime, Vehicle.Direction.EastWest);
-                        t3Queue.addNewVehicle(newVehicle, trafficLights);
-                    }
-                    // Add a vehicle in processed queue
-                    else if (source.equals("W") && destination.equals("E")) {
+
+                    // Add new vehilcles in the queue
+                    for (int i = 0; i < westEast; i++) {
                         Vehicle newVehicle = new Vehicle(vehicleID++,
                                 trafficLights.elapsedTime, Vehicle.Direction.WestEast);
                         newVehicle.remainingTime = 0;
@@ -692,9 +726,15 @@ class Main {
                         trafficLights.processedQueue.add(newVehicle);
                         trafficLights.updateVehicleTableUI();
                     }
-                    // All other cases are invalid input
-                    else {
-                        System.out.println("Invalid Input");
+
+                    // Add new vehilcles in the queue
+                    for (int i = 0; i < southWest; i++) {
+                        Vehicle newVehicle = new Vehicle(vehicleID++,
+                                trafficLights.elapsedTime, Vehicle.Direction.SouthWest);
+                        newVehicle.remainingTime = 0;
+                        newVehicle.status = true;
+                        trafficLights.processedQueue.add(newVehicle);
+                        trafficLights.updateVehicleTableUI();
                     }
                 }
             }
