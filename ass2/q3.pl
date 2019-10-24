@@ -89,21 +89,33 @@ valid(X) :-
     length(X, Length),
     is_valid(X, Length).
 
-get_path(Source, Destination, Visited, Result) :-
+get_path(Source, Destination, _, Result, PathLength, NewPathLength, Path) :-
     Source = Destination,
-    append(Visited, [Source], _),
-    write(Result), nl.
+    NewPathLength is PathLength,
+    Path = Result.
 
-get_path(Source, Destination, Visited, Result) :-
+get_path(Source, Destination, Visited, Result, PathLength, NewPathLength, Path) :-
     \+ Source = Destination,
     append(Visited, [Source], NewVisited),    
     is_edge(Source, U),
     \+ member(U, Visited),
+    get_edge_length(Source, U, EdgeLength),
+    TempPathLength is (EdgeLength + PathLength),
     append(Result, [U], NewResult),    
-    get_path(U, Destination, NewVisited, NewResult).
+    get_path(U, Destination, NewVisited, NewResult, TempPathLength, NewPathLength, Path).
 
-get_all_valid_path :-
-    get_path(g1, g17, [], [g1]);
-    get_path(g2, g17, [], [g2]);
-    get_path(g3, g17, [], [g3]);
-    get_path(g4, g17, [], [g4]).
+get_all_valid_path(X, Path) :-
+    get_path(g1, g17, [], [g1], 0, X, Path);
+    get_path(g2, g17, [], [g2], 0, X, Path);
+    get_path(g3, g17, [], [g3], 0, X, Path);
+    get_path(g4, g17, [], [g4], 0, X, Path).
+
+get_all_path :-
+    forall(get_all_valid_path(_, Path), format('~w ~n', [Path])).   
+
+optimal :-
+    findall(X, get_all_valid_path(X, Path), L),
+    min_member(Min, L),
+    forall(get_all_valid_path(Min, Path), format('~w ~n', [Path])).
+    
+    
