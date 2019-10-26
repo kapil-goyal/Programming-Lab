@@ -110,12 +110,32 @@ get_all_valid_path(X, Path) :-
     get_path(g3, g17, [], [g3], 0, X, Path);
     get_path(g4, g17, [], [g4], 0, X, Path).
 
-get_all_path :-
-    forall(get_all_valid_path(_, Path), format('~w ~n', [Path])).   
+get_all_valid_non_cyclic_path :-
+    forall(get_all_valid_path(_, Path), format('Path: ~w ~n', [Path])).   
 
+get_cyclic_path(Source, Destination, Result, PathLength, NewPathLength, Path) :-
+    Source = Destination,
+    NewPathLength is PathLength,
+    Path = Result.
+
+get_cyclic_path(Source, Destination, Result, PathLength, NewPathLength, Path) :-
+    \+ Source = Destination,
+    is_edge(Source, U),
+    get_edge_length(Source, U, EdgeLength),
+    TempPathLength is (EdgeLength + PathLength),
+    append(Result, [U], NewResult),    
+    get_cyclic_path(U, Destination, NewResult, TempPathLength, NewPathLength, Path).
+
+get_valid_cyclic_path(X, Path) :-
+    (
+        get_cyclic_path(g1, g17, [g1], 0, X, Path);
+        get_cyclic_path(g2, g17, [g2], 0, X, Path);
+        get_cyclic_path(g3, g17, [g3], 0, X, Path);
+        get_cyclic_path(g4, g17, [g4], 0, X, Path) 
+    ),
+    format('Path: ~w ~n', [Path]).
+    
 optimal :-
     findall(X, get_all_valid_path(X, Path), L),
     min_member(Min, L),
     forall(get_all_valid_path(Min, Path), format('~w ~n', [Path])).
-    
-    
