@@ -241,24 +241,32 @@ make_starter_items_for_diet(Count, Result) :-
 % Predicate to find out the possible combination of items from the selected categories
 % Rule when the status is hungry and a dish from all categories is eaten
 find_items(hungry, 1, 1, 1) :-
-    starter(X, _),
-    main_dish(Y, _),
-    dessert(Z, _),
-    format('Items: [~w, ~w, ~w] ~n', [X, Y, Z]).
+    forall(
+        (
+            starter(X, _),
+            main_dish(Y, _),
+            dessert(Z, _)
+        ),
+        format('Items: [~w, ~w, ~w] ~n', [X, Y, Z])
+    ).
 
 % Rule when status is not_so_hungry and starter is not eaten and nutrition value is not greater than 80
 find_items(not_so_hungry, 0, 1, 1) :-
-    dessert(X, NutriX),
-    main_dish(Y, NutriY),
-    (NutriX + NutriY) =< 80,
-    format('Items: [~w, ~w] ~n', [X, Y]).
+    forall((
+        dessert(X, NutriX),
+        main_dish(Y, NutriY),
+        (NutriX + NutriY) =< 80
+    ),
+    format('Items: [~w, ~w] ~n', [X, Y])).
 
 % Rule when status is not_so_hungry and dessert is not eaten and nutrition value is not greater than 80
 find_items(not_so_hungry, 1, 1, 0) :-
-    starter(X, NutriX),
-    main_dish(Y, NutriY),
-    (NutriX + NutriY) =< 80,
-    format('Items: [~w, ~w] ~n', [X, Y]).
+    forall((
+        starter(X, NutriX),
+        main_dish(Y, NutriY),
+        (NutriX + NutriY) =< 80
+    ),
+    format('Items: [~w, ~w] ~n', [X, Y])).
 
 % Rule when status is diet and only starter is and nutrition value is not greater than 40
 find_items(diet, 1, 0, 0) :-

@@ -159,7 +159,16 @@ get_all_valid_path(X, Path) :-
 
 % This predicate prints all valid non cyclic path.
 get_all_valid_non_cyclic_path :-
-    forall(get_all_valid_path(_, Path), format('Path: ~w ~n', [Path])).   
+    open('paths.txt', write, Stream),
+    forall(get_all_valid_path(_, Path), 
+    (
+        format('Path: ~w ~n', [Path]),
+        format(Stream, 'Path: ~w ~n', [Path])
+    )),
+    findall(X, get_all_valid_path(X, Path), L),
+    close(Stream),
+    length(L, Length),
+    format('Total no. of non-cyclic valid path: ~w ~n', [Length]).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -199,6 +208,7 @@ get_valid_cyclic_path(X, Path) :-
 optimal :-
     findall(X, get_all_valid_path(X, Path), L),
     min_member(Min, L),
-    forall(get_all_valid_path(Min, Path), format('~w ~n', [Path])).
+    format('Optimal Path-length: ~w ~n', [Min]),
+    forall(get_all_valid_path(Min, Path), format('Optimal Path: ~w ~n', [Path])).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
